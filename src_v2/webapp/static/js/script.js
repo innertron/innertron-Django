@@ -32,21 +32,24 @@
      legend: {position: 'none'}
             };
     if(flag==1){
-    var chart = new google.visualization.AreaChart(document.getElementById('linechart_material'));
+    var chart = new google.visualization.AreaChart(document.getElementById('linechart_material1')); // heart beat
     // Add our over/out handlers.
-    document.getElementById("chartlefttab").innerHTML = '<span style="font-size:12px;"> Speed</span> <span style="font-size:12px;color:#A81111;"></br> Max-32.3 </br> Avg-27.4</span>';
+    document.getElementById("chartlefttab").innerHTML = '<span style="font-size:12px;"> Watts</span> <span style="font-size:12px;color:#A81111;"></br> Max-476 </br> Avg-294.6</span>';
+	// '<span style="font-size:12px;"> Speed</span> <span style="font-size:12px;color:#A81111;"></br> Max-32.3 </br> Avg-27.4</span>';
     chart.draw(data, options);
     //google.visualization.events.addListener(chart, 'onmouseover', chartMouseOver);
     }
     if(flag==2){
-    var chart = new google.visualization.AreaChart(document.getElementById('linechart_material1'));
-    document.getElementById("chartlefttab1").innerHTML ='<span style="font-size:12px;"> Watts</span> <span style="font-size:12px;color:#A81111;"></br> Max-476 </br> Avg-294.6</span>';
+    var chart = new google.visualization.AreaChart(document.getElementById('linechart_material2')); 
+    document.getElementById("chartlefttab1").innerHTML = '<span style="font-size:12px;">Heart Rate</span><span style="font-size:12px;color:#A81111;"></br> Max-135 </br> Avg-101.4 </span>';
     chart.draw(data, options);
     //google.visualization.events.addListener(chart, 'onmouseover', chartMouseOver);
     }
     if(flag==3){
-    var chart = new google.visualization.AreaChart(document.getElementById('linechart_material2'));
-    document.getElementById("chartlefttab2").innerHTML ='<span style="font-size:12px;">Heart Rate</span><span style="font-size:12px;color:#A81111;"></br> Max-135 </br> Avg-101.4 </span>';
+    var chart = new google.visualization.AreaChart(document.getElementById('linechart_material')); 
+    document.getElementById("chartlefttab2").innerHTML ='<span style="font-size:12px;"> Speed</span> <span style="font-size:12px;color:#A81111;"></br> Max-32.3 </br> Avg-27.4</span>';
+   
+	//'<span style="font-size:12px;">Heart Rate</span><span style="font-size:12px;color:#A81111;"></br> Max-135 </br> Avg-101.4 </span>';
     chart.draw(data, options);
     //google.visualization.events.addListener(chart, 'onmouseover', chartMouseOver);
     }
@@ -100,6 +103,7 @@
               $(data).each(function(index, value){
                 $('#riderlistid').append('<option value="'+value.pk+'">'+value.fields.riderNo+'</option>'); // load the riderlistid data (value and text)
 				//alert(value.pk +'   , : = ' + value.fields.riderNo);
+				 $('#riderlistdialog').append('<option value="'+value.pk+'">'+value.fields.riderNo+'</option>'); 
                 })
             }
           });
@@ -143,6 +147,7 @@
               var color2='#442B59';
               var color3='#084D0D';
               var color4='#ccc';
+			  var row_count = 0 ;
 			  
 			  //Maadh
 			 // document.getElementById("Max_Watts").innerHTML = "<table border=\'1\' id=\'mytable\'><tbody><tr><td>22<\/td><td>333<\/td><\/tr><tr><td>22<\/td><td>333<\/td><\/tr><\/tbody><\/table>";
@@ -156,8 +161,10 @@
                     success:function(data){
                       $(data).each(function(index, value){
                         // alert(value.fields.Max_watts_10seconds);
-			
-
+		
+			if(row_count<=0)
+			{row_count=row_count+1
+              console.log(value.fields.Max_watts_10seconds);
 			  tabBody=document.getElementsByTagName("tbody").item(0);
               row=document.createElement("tr");
               cell1 = document.createElement("td");
@@ -192,7 +199,7 @@
 			  row.appendChild(cell5);
               row.appendChild(cell6);
               tabBody.appendChild(row);
-						 
+			}
                           //console.log(ht);
                       })
 		  $.ajax({
@@ -209,7 +216,7 @@
 			  power_curve_5min =      value.fields.Max_watts_5min;
 			  power_curve_20min=      value.fields.Max_watts_20min; 
 			  power_curve_60min=      value.fields.Max_watts_60min ;
-                       //  alert(value.fields.Max_watts_10seconds);
+                      //  alert(value.fields.Max_watts_10seconds);
 						  tabBody=document.getElementsByTagName("tbody").item(0);
               row=document.createElement("tr");
               cell1 = document.createElement("td");
@@ -425,6 +432,8 @@
                   //drawbar(ht);
                 }
               });
+			  
+			 
             }
           window.onload=function(){
           var x=300;
@@ -466,7 +475,7 @@
               });
 
             }
-
+  var value=0;
             function readcsv(){
               var riderNo = $('#riderlistid').val();
               $.ajax({
@@ -482,15 +491,23 @@
                 }
               });
             }
-            function getPos(e){
-           x=e.clientX;
-        	y=e.clientY;
-            var value=0;
+			var Current_mousepoint_value=0;
+		    var defult_mouse_position=167;
+		    function run_moving(){
+		    var x =defult_mouse_position;
+		  //	x=e.clientX;
+        	//y=e.clientY;
             var a=0;
             var b=pWatts.length-1;
             var xa=159;
             var xb=850;
-            value = ((Math.ceil(1+(((x-8)-xa)*(b-a)/(xb-xa)))*10)/10)-1;
+          //  value = ((Math.ceil((((x-8)-xa)*(b-a)/(xb-xa)))*10)/10);
+			Current_mousepoint_value =value;
+			x= 334+ Math.ceil(( (value * (xb-xa) +  (-8-xa) *(b-a)  ) /(b-a))*10 )/10 ;
+			
+			//x = ( value * (xb-xa)/ (b-a) ) -8-xa;
+		    console.log(value);
+			Current_mousepoint_value =value;
             $('.overlay').css({'left' : x-8,'border-left':'1px solid'});
             $('.overlay1').css({'left' : x-8,'border-left':'1px solid'});
             $('.overlay2').css({'left' : x-8,'border-left':'1px solid'});
@@ -502,26 +519,107 @@
 			//calculate_max_watts();
             //console.log(speed[value]);
 			//console.log(value);
-			min_ = Math.floor( value / 60 );
-			sec_= value - (min_*60) ; 
+			hours_ =Math.floor( value / 3600 ); 
+			
+			min_ = Math.floor( (value-(hours_*3600)) / 60 );
+			sec_= value - (min_*60) -(hours_*3600) ; 
 			if (min_ <= 9) {
 			min_ = '0' + min_ ;}
 			if (sec_ <= 9) {
 			sec_ = '0' + sec_ ;}
 			
-			time =   '0'+':' + min_ + ':' + sec_;
+			time =   hours_+':' + min_ + ':' + sec_;
 			//time = value +' Sec' ;
 			
 			 // document.getElementById("Time").innerHTML ='<b>'+ time + '</b>' + '</br>' + speed[value]+'</br>mi/hr';
          
-            document.getElementById("charttooltip").innerHTML ='<b>'+ time + '</b>' + '</br>' + speed[value]+'</br>mi/hr';
-            document.getElementById("charttooltip1").innerHTML = pWatts[value]+'</br>watts';
-            document.getElementById("charttooltip2").innerHTML = heartRate[value]+'</br>bpm';
+            document.getElementById("charttooltip").innerHTML ='<b>'+ time + '</b>' + '</br>' + pWatts[value]+'</br>watts'; // speed[value]+'</br>mi/hr';
+            document.getElementById("charttooltip1").innerHTML =  heartRate[value]+'</br>bpm'; // pWatts[value]+'</br>watts';
+            document.getElementById("charttooltip2").innerHTML = speed[value]+'</br>mi/hr'; //heartRate[value]+'</br>bpm';
+            document.getElementById("charttooltip3").innerHTML = elevation[value]+'</br>ft'; 
+            // defult_mouse_position=defult_mouse_position+1;
+              value=value+1;
+              if(value>=pWatts.length-1 || value>=End_time ){		  
+			   var elem = document.getElementById("play_stop");
+               elem.innerHTML= "&#9658";
+               play_stop_status="off";
+              }
+            if (play_stop_status== "on"){
+            var setintrvl=setTimeout(run_moving,1000/8);
+			}
+          }
+		 
+			
+            function getPos(e){
+            x=e.clientX;
+        	y=e.clientY;
+          
+            var a=0;
+            var b=pWatts.length-1;
+            var xa=159;
+            var xb=850;
+            value = ((Math.ceil(1+(((x-8)-xa)*(b-a)/(xb-xa)))*10)/10)-1;
+			Current_mousepoint_value =value;
+            $('.overlay').css({'left' : x-8,'border-left':'1px solid'});
+            $('.overlay1').css({'left' : x-8,'border-left':'1px solid'});
+            $('.overlay2').css({'left' : x-8,'border-left':'1px solid'});
+            $('.overlay3').css({'left' : x-8,'border-left':'1px solid'});
+            //$('.charttooltip').css({'left' : x-8});			
+		// 	render_max_watts_and_percentage(value);
+			render_max_heart_rate_and_percentage(value);
+			render_remaining_time_bar();
+			//calculate_max_watts();
+            //console.log(speed[value]);
+			//console.log(value);
+			hours_ =Math.floor( value / 3600 ); 
+			
+			min_ = Math.floor( (value-(hours_*3600)) / 60 );
+			sec_= value - (min_*60) -(hours_*3600) ; 
+			if (min_ <= 9) {
+			min_ = '0' + min_ ;}
+			if (sec_ <= 9) {
+			sec_ = '0' + sec_ ;}
+			
+			time =   hours_+':' + min_ + ':' + sec_;
+			//time = value +' Sec' ;
+			
+			 // document.getElementById("Time").innerHTML ='<b>'+ time + '</b>' + '</br>' + speed[value]+'</br>mi/hr';
+            document.getElementById("charttooltip").innerHTML ='<b>'+ time + '</b>' + '</br>' + pWatts[value]+'</br>watts'; // speed[value]+'</br>mi/hr';
+            document.getElementById("charttooltip1").innerHTML =  heartRate[value]+'</br>bpm'; // pWatts[value]+'</br>watts';
+            document.getElementById("charttooltip2").innerHTML = speed[value]+'</br>mi/hr'; //heartRate[value]+'</br>bpm';
             document.getElementById("charttooltip3").innerHTML = elevation[value]+'</br>ft'; 
     	}
 
-		
-		 function render_remaining_time_bar(){
+			var start_30_second =0; 
+			var start_30_second_at=0;
+		   
+
+
+		   function render_remaining_time_bar(){
+			 //new version 
+			 var rem_seconds_avg =0;
+			 rem_seconds_avg=   ( Get_rem_time_from_hear_beat_curve(heartRate[value])  + Get_rem_time_from_pow_curve( pWatts[value]) )/2 ; // 
+  
+  //get the Avarage of the data 
+  rem_seconds_avg=0;
+       for (count =0 ; count<30; count++)
+	   {
+		   if (value>=29){
+			   rem_seconds_avg=rem_seconds_avg + ( Get_rem_time_from_hear_beat_curve(heartRate[value-count])  + Get_rem_time_from_pow_curve( pWatts[value-count]) )/2 ;
+		   }
+		   else
+		   {
+			    rem_seconds_avg=   ( Get_rem_time_from_hear_beat_curve(heartRate[value])  + Get_rem_time_from_pow_curve( pWatts[value]) )/2 ; // 
+  
+		   }
+	   }
+	    if (value>=29){
+			   rem_seconds_avg=rem_seconds_avg /30;
+		   }
+	 
+ 
+ 
+			 //
 			 
 			  var canvas=document.getElementById('canvas');  // canvas now shows time with colors 
           var ctx=canvas.getContext('2d');
@@ -534,17 +632,29 @@
             var secs=now.getSeconds();
             var time=now.toLocaleTimeString();
 			var max_x=x_sec[0];
-			if (max_x <0){max_x =0;}
-			var bar_value  = max_x ;
+		
+			max_x=(100*(Math.pow(0.97265491,bar_percentage_value))-6.25)  *3600* 8 / 100 ;
 			
-			min_ = Math.floor( max_x / 60 );
-			sec_= Math.floor (max_x - (min_*60)) ; 
+			// new version
+			max_x = rem_seconds_avg;
+			// new version
+			
+			var hours_1 =Math.floor( max_x / 3600 ); 
+			//if (max_x <0){max_x =0;} 
+			bar_percentage_value=100-(rem_seconds_avg/18000)*100;
+			if (bar_percentage_value<0){bar_percentage_value=0;}
+			 var bar_value  = 300 - (bar_percentage_value*3);
+			
+			min_ =  Math.floor( (max_x-(hours_1*3600)) / 60 );
+			sec_= Math.floor (max_x - (min_*60) - (hours_1*3600)) ; 
+			if (hours_1 <= 9) {
+			hours_1 = '0' + hours_1 ;}
 			if (min_ <= 9) {
 			min_ = '0' + min_ ;}
 			if (sec_ <= 9) {
 			sec_ = '0' + sec_ ;}
 			
-			max_x_time =   '00'+':' + min_ + ':' + sec_;
+			max_x_time = hours_1+':' + min_ + ':' + sec_;
 			
 			if (bar_value>300){bar_value=300;}
               ctx.fillStyle="white";
@@ -553,12 +663,42 @@
               ctx.stroke();
               ctx.font="30px Arial";
               ctx.fillStyle="black";
+			  //ctx.fillText( Math.round( bar_percentage_value) +'%' ,90,285);
+			  if (max_x<=30 || start_30_second==1){
+				    ctx.font="40px Arial";
+				  if (start_30_second==0){
+				  start_30_second=1;
+				  start_30_second_at=value;
+				  
+				  }
+				  if(start_30_second==1){ 
+				  if (start_30_second_at>value)
+				  {
+					  start_30_second=0;
+				  }
+					  var remaining_seconds=start_30_second_at-value+30;
+					  if (remaining_seconds<=-20){start_30_second=0;}
+					  if (remaining_seconds<0){
+						   ctx.fillText("Poped" ,67,45);
+					  }
+				  else{
+					  if (Math.round(remaining_seconds)<=9){ctx.fillText(Math.round(remaining_seconds) ,100,45);}
+					  else{
+					  ctx.fillText(Math.round(remaining_seconds) ,95,45);}
+				  }
+				  }
+			  }
+			  else{
+				  start_30_second=0;
 			  ctx.fillText(max_x_time ,62,320);
+			  }
               
             }
 
 var x_sec=[];
 var y_sec=[];
+var bar_percentage_value =0;
+var recov_value=0;
 function render_max_heart_rate_and_percentage(value)
 {
 	max_10_seconds_watt=calculate_max_watts(value,10);
@@ -609,13 +749,15 @@ function render_max_heart_rate_and_percentage(value)
 
     var y=[]; // to store watts % + heartRate% divided by 2 
 	//x_10_sec
+	var heart_beat_Rate=[];
 	if (value<10){
 		x_sec[0]=0; 
 		y_sec[0]=0;
 	}
 	else{
-	y[0]=  (Math.round( max_10_seconds_watt*100 / power_curve_10seconds ) +  Math.round( max_10_seconds*100 / heart_beat_curve_10seconds ) )/2 ;
-	x_sec[0]=( 100 - y[0]) * 10 /100;
+	heart_beat_Rate[0] = ( heartRate[Current_mousepoint_value]/(heart_beat_curve_10seconds+10)) *100;
+	y[0]=  (((Math.round( max_10_seconds_watt*100 / power_curve_10seconds ) +  Math.round( max_10_seconds*100 / heart_beat_curve_10seconds ) )/2) + heart_beat_Rate[0])/2 ;
+	x_sec[0]=( 100 - Math.round(y[0])) * 10 /100;
 	y_sec[0] =(100 - (Math.round( max_10_seconds_watt*100 / power_curve_10seconds ) )) * 10 /100;
 	}
 	//x_30_sec
@@ -623,32 +765,36 @@ function render_max_heart_rate_and_percentage(value)
 		x_sec[1]=0; 
 	else
 	{
-	y[1]=  (Math.round( max_30_seconds_watt*100 / power_curve_30seconds )+  Math.round( max_30_seconds*100 / heart_beat_curve_30seconds ) )/2;
-	x_sec[1]= ( 100 - y[1]) * 30 /100;
+	heart_beat_Rate[1] = ( heartRate[Current_mousepoint_value]/(heart_beat_curve_30seconds+10)) *100;
+	y[1]=  (((Math.round( max_30_seconds_watt*100 / power_curve_30seconds )+  Math.round( max_30_seconds*100 / heart_beat_curve_30seconds ) )/2)  + heart_beat_Rate[1])/2;
+	x_sec[1]= ( 100 - Math.round(y[1])) * 30 /100;
 	}
 	//x_1_min
 	if (value<60)
 		x_sec[2]=0; 
 	else
 	{
-	y[2]=   (Math.round( max_1_min_watt*100 / power_curve_1min ) +  Math.round( max_1_min*100 / heart_beat_curve_1min ) )/2;
-	x_sec[2]= ( 100 - y[2]) * 60 /100;
+	heart_beat_Rate[2] = ( heartRate[Current_mousepoint_value]/(heart_beat_curve_1min+10)) *100;
+	y[2]=  (( (Math.round( max_1_min_watt*100 / power_curve_1min ) +  Math.round( max_1_min*100 / heart_beat_curve_1min ) )/2) + heart_beat_Rate[2])/2 ;
+	x_sec[2]= ( 100 -Math.round(y[2])) * 60 /100;
 	}
 	//x_5_min
 	if (value<300)
 		x_sec[3]=0; 
 	else
 	{
-	y[3]= ( Math.round( max_5_min_watt*100 / power_curve_5min )+  Math.round( max_5_min*100 / heart_beat_curve_5min )  )/2;
-	x_sec[3]= ( 100 - y[3]) * 300 /100;
+	heart_beat_Rate[3] = ( heartRate[Current_mousepoint_value]/(heart_beat_curve_5min+10)) *100;
+	y[3]= ( ((Math.round( max_5_min_watt*100 / power_curve_5min )+  Math.round( max_5_min*100 / heart_beat_curve_5min )  )/2) + heart_beat_Rate[3])/2 ;
+	x_sec[3]= ( 100 - Math.round(y[3])) * 300 /100;
 	}
 	//x_20_min
 	if (value<1200)
 		x_sec[4]=0; 
 	else
 	{
-    y[4]= (Math.round( max_20_min_watt*100 / power_curve_20min )+   Math.round( max_20_min*100 / heart_beat_curve_20min ) )/2;
-	x_sec[4]= ( 100 - y[4]) * 1200 /100;
+	heart_beat_Rate[4] = ( heartRate[Current_mousepoint_value]/(heart_beat_curve_20min+10)) *100;
+    y[4]= (((Math.round( max_20_min_watt*100 / power_curve_20min )+   Math.round( max_20_min*100 / heart_beat_curve_20min ) )/2 ) + heart_beat_Rate[4])/2 ;
+	x_sec[4]= ( 100 - Math.round(y[4])) * 1200 /100;
 	
 	}
 	//x_1_hour
@@ -656,9 +802,10 @@ function render_max_heart_rate_and_percentage(value)
 		x_sec[5]=0; 
 	else
 	{
-	y[5]=  (Math.round( max_1_hour_watt*100 / power_curve_60min )+  Math.round( max_1_hour*100 / heart_beat_curve_60min ) )/2 ;
+	heart_beat_Rate[5] = ( heartRate[Current_mousepoint_value]/(heart_beat_curve_60min+10)) *100;
+	y[5]=  (((Math.round( max_1_hour_watt*100 / power_curve_60min )+  Math.round( max_1_hour*100 / heart_beat_curve_60min ) )/2 ) + heart_beat_Rate[5])/2 ;
 	
-	x_sec[5]= ( 100 - y[5]) * 3600 /100;
+	x_sec[5]= ( 100 - Math.round(y[5])) * 3600 /100;
 	}
 	//alert ( xx);
 	
@@ -671,10 +818,15 @@ function render_max_heart_rate_and_percentage(value)
 	document.getElementById('max_watt_beat_1_hour').innerHTML = x_sec[5] + ' Sec' ;
 	//alert(indexOfMax(x_sec));
 	//x_sec.sort(function(a, b){return b-a});
+	
+	//alert("OK");
 	x_sec[0]=x_sec[indexOfMax(y)];
 	
-	
-	
+	bar_percentage_value=y[indexOfMax(y)]
+	if (pWatts[Current_mousepoint_value]== recov_value){
+		
+		bar_percentage_value= heart_beat_Rate[indexOfMax(y)]  ;
+	}
 	//alert( x_sec[0] );
 	//document.getElementById('max_watt_beat_1_hour').innerHTML =  x_sec[0] + ' Sec' ;
 	//Math.round( max_10_seconds_watt*100 / power_curve_10seconds )
@@ -742,51 +894,6 @@ function render_max_watts_and_percentage(value)
 	//document.getElementById('max_1_hour').innerHTML = calculate_max_watts(value,3600);
 	//max_10_seconds_%
 }		
-
-function calculate_max_watts (seconds , time_in_seconds ){
-	if (seconds < time_in_seconds )
-		return '0';
-	var Max_watts_value = 0;
-	var Current_watts_total =0;
-	for (x =1; x <= seconds;x++ )
-                if(x<=time_in_seconds) { // for X seconds 
-                    Max_watts_value=Max_watts_value+pWatts[x-1]
-                    Current_watts_total = Current_watts_total+pWatts[x-1]
-					}            
-				else{
-                    Current_watts_total = Current_watts_total + pWatts[x-1] - pWatts[x-1-time_in_seconds]
-                    if(Current_watts_total>Max_watts_value) {
-                        Max_watts_value= Current_watts_total
-						}
-					}
-	return Math.round(Max_watts_value / time_in_seconds) ;
-}
-
-
-
-function calculate_max_heart_rate (seconds , time_in_seconds ){
-	if (seconds < time_in_seconds )
-		return '0';
-	var Max_watts_value = 0;
-	var Current_watts_total =0;
-	for (x =1; x <= seconds;x++ )
-                if(x<=time_in_seconds) { // for X seconds 
-                    Max_watts_value=Max_watts_value+heartRate[x-1]
-                    Current_watts_total = Current_watts_total+heartRate[x-1]
-					}            
-				else{
-                    Current_watts_total = Current_watts_total + heartRate[x-1] - heartRate[x-1-time_in_seconds]
-                    if(Current_watts_total>Max_watts_value) {
-                        Max_watts_value= Current_watts_total
-						}
-					}
-	//if (seconds < time_in_seconds )
-      //    return Math.round(Max_watts_value / seconds) ;
-					
-	return Math.round(Max_watts_value / time_in_seconds) ;
-}
-		
-		
     	function stopTracking(){
         $('.overlay').css({'left' : x-8,'border-left':'0px solid'});
         $('.overlay1').css({'left' : x-8,'border-left':'0px solid'});
@@ -817,3 +924,52 @@ function calculate_max_heart_rate (seconds , time_in_seconds ){
 
   	 //set the progress bar to be hidden on loading
   	 $(".progress").hide();
+
+	 
+	 	$( document ).ready(function() {
+	
+	$('#start_time').timepicker(
+	{
+	addSliderAccess: true,
+	sliderAccessArgs: { touchonly: false }
+}
+	
+);
+	  
+
+	  $('#end_time').timepicker(
+	{
+	addSliderAccess: true,
+	sliderAccessArgs: { touchonly: false }
+}
+	
+);
+    console.log( "ready!" );
+	
+	 document.getElementById("end_time").value= "02:00";
+});
+    
+	
+          
+		
+		
+var play_stop_status="off";    
+var End_time =0;      
+function play_stop()
+  {
+  var elem = document.getElementById("play_stop");
+   if (play_stop_status== "off")
+   { 
+   elem.innerHTML= "&#10074;&#10074; ";
+   play_stop_status="on";
+    var stat_text = document.getElementById("start_time").value;
+    var end_time_text =  document.getElementById("end_time").value;
+	value = parseInt(stat_text.substring(0, 2)) *60*60 + parseInt(stat_text.substring(3, 5)) *60;
+	End_time = parseInt(end_time_text.substring(0, 2)) *60*60 + parseInt(end_time_text.substring(3, 5)) *60;
+    run_moving();
+   }
+   else {
+   elem.innerHTML= "&#9658";
+   play_stop_status="off";
+   }
+   }

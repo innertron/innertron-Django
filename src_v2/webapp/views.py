@@ -18,6 +18,7 @@ from webapp.models import riderride
 from webapp.models import limitwattsrider
 from webapp.models import max_watts_duration
 from webapp.models import power_curve_duration
+from decimal import Decimal
 
 from array import *
 import sys
@@ -33,9 +34,17 @@ def upload_file(request):
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            riderNo=request.POST.get('riderlistid')
+            if request.POST.get('riderlistid') is not None:
+                riderNo=request.POST.get('riderlistid')
+            else:
+                newrider=ridermaster(riderNo=request.POST.get('ridername') )
+                newrider.save()
+                riderNo=newrider.id
+                newpower_curve=power_curve_duration(riderNo=riderNo,Max_watts_10seconds=1000,Max_watts_30seconds=750,Max_watts_1min=400,Max_watts_5min=250,Max_watts_20min=180,Max_watts_60min=140)
+                newpower_curve.save()
             newdoc = Document(docfile = request.FILES['docfile'])
             newdoc.save()
+            print (sys.stderr, 'current riderNo is ' + str(riderNo )) #int(float(row[25]))
             fname=request.FILES['docfile'].name
             newdoccsv=subprocess.call(['java', '-jar', 'FitCSVTool.jar',fname],cwd='webapp/media/documents')
             readcsv(riderNo,fname[:-4])
@@ -163,6 +172,7 @@ def ridebar(request):
     #return HttpResponse(queryset, content_type="application/json")
 
 def readcsv(riderNo,fname):
+    print (sys.stderr, ' readcsv function Started ')
     x=0
     results=[]
     k=riderride.objects.filter(riderNo=riderNo).values('rideNo').distinct().count()
@@ -191,16 +201,22 @@ def readcsv(riderNo,fname):
         Current_watts_20min_total = 0
         Max_watts_60min_value = 0
         Current_watts_60min_total = 0
+        readAll = 0 #or (readAll==1 and row[0] != 'creator')
 	
         for row in reader:
-            if(row[0]=='Data' and row[2]=='record' and row[3]=='timestamp'):
+            if((row[0]=='Data' and row[2]=='record' and row[3]=='timestamp' and row[12]=='altitude')):
                 x+=1
                 secs.append(x)
-                heartrate.append(row[28])
-                watts.append(int(row[25]))
-                speed.append(row[22])
-                elevation.append(row[19])
-                b=riderride(rideNo=rideNo,riderNo=riderNo,secs=x,heartRate=row[28],watts=row[25],speed=row[22],elevation=row[19])
+                #heartrate.append(row[9])
+                #watts.append(int(row[10]))
+                #speed.append(row[8])
+                #elevation.append(row[6])
+                heartrate.append(row[22]) #22 # 28
+                watts.append(int(Decimal(row[19]))) # 25 # 19
+                speed.append(row[25]) #19 # 22 # 25
+                elevation.append(row[13]) #28 #19
+                print (sys.stderr, 'current record is ' + str(int(float(row[19]))) + ' value= : " ' + str(watts[x-1]) +'  x = ' + str(x)) #int(float(row[25]))
+                b=riderride(rideNo=rideNo,riderNo=riderNo,secs=x,heartRate=int(float(row[22])),watts=int(float(row[19])),speed=int(float(row[25])),elevation=int(float(row[13])))
                 b.save()
 				
 				         # calculate Max_Watts for 10 sec,30sec , 60 sec , 300 sec, 1200 sec , 3600 sec ( the data should be at least 3600 records )
